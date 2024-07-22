@@ -1,53 +1,60 @@
-let products = [];
+const apiURL = 'https://cdn.shopify.com/s/files/1/0564/3685/0790/files/multiProduct.json';
+let allProducts = [];
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener('DOMContentLoaded', () => {
     fetchProducts();
-    document.getElementById('search').addEventListener('input', function() {
-        searchProducts(this.value);
-    });
+    document.getElementById('allButton').addEventListener('click', () => displayProducts(allProducts));
+    document.getElementById('menButton').addEventListener('click', () => filterCategory('Men'));
+    document.getElementById('womenButton').addEventListener('click', () => filterCategory('Women'));
+    document.getElementById('kidsButton').addEventListener('click', () => filterCategory('Kids'));
+    document.getElementById('searchInput').addEventListener('input', searchProducts);
 });
 
 function fetchProducts() {
-    fetch('https://cdn.shopify.com/s/files/1/0564/3685/0790/files/multiProduct.json')
+    fetch(apiURL)
         .then(response => response.json())
         .then(data => {
-            console.log('Fetched data:', data); // Log the fetched data to check its structure
-            if (data.products) {
-                products = data.products;
-                displayProducts(products);
-            } else {
-                console.error('Error: The expected "products" field is missing in the fetched data.');
-            }
+            console.log(data); // Log the entire response to check its structure
+            allProducts = data.categories.flatMap(category => category.category_products);
+            displayProducts(allProducts);
         })
         .catch(error => console.error('Error fetching products:', error));
 }
 
 function displayProducts(products) {
-    console.log('Displaying products:', products); // Debug: Log the products to be displayed
-    const container = document.getElementById('product-container');
+    const container = document.getElementById('productContainer');
     container.innerHTML = '';
     products.forEach(product => {
         const productElement = document.createElement('div');
         productElement.className = 'product';
         productElement.innerHTML = `
+            <img src="${product.image}" alt="${product.title}">
             <h2>${product.title}</h2>
             <p>Vendor: ${product.vendor}</p>
-            <p>Category: ${product.product_type}</p>
+            <p class="price">Price: ₹${product.price}</p>
+            <p class="compare_at_price">Compare at: ₹${product.compare_at_price}</p>
+            <p>Badge: ${product.badge_text}</p>
         `;
         container.appendChild(productElement);
     });
 }
 
-function filterCategory(category) {
-    const filteredProducts = products.filter(product => product.product_type === category);
+function filterCategory(categoryName) {
+    const filteredProducts = allProducts.filter(product => getCategory(product.id) === categoryName);
     displayProducts(filteredProducts);
 }
 
-function searchProducts(query) {
-    const filteredProducts = products.filter(product => {
-        return product.title.toLowerCase().includes(query.toLowerCase()) ||
-               product.vendor.toLowerCase().includes(query.toLowerCase()) ||
-               product.product_type.toLowerCase().includes(query.toLowerCase());
-    });
+function searchProducts() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const filteredProducts = allProducts.filter(product => 
+        product.title.toLowerCase().includes(query) ||
+        product.vendor.toLowerCase().includes(query)
+    );
     displayProducts(filteredProducts);
+}
+
+function getCategory(productId) {
+    if (productId.endsWith('k')) return 'Kids';
+    if (productId.endsWith('w')) return 'Women';
+    return 'Men';
 }
