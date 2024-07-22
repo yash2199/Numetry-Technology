@@ -23,6 +23,16 @@
             <input type="email" id="email" name="email" placeholder="Enter your Email" required>
             <span id="emailError" class="error"></span>
 
+            <div class="otpverify">
+                <label for="otpverify">otpverify</label>
+                <input type="text" id="otp" name="otpverify" placeholder="enter your otp" required >
+                <span id="otpError" class="error"></span>
+                <div class="btn-container">
+                <button class="btn">send otp</button>
+                <button class="verify">verify</button>
+                </div>
+            </div>
+       
             <label for="username">Username</label>
             <input type="text" id="username" name="username" placeholder="Enter your username" required>
             <span id="usernameError" class="error"></span>
@@ -34,6 +44,7 @@
             <button type="submit">Register</button>
         </form>
     </div>
+    
     <script src="scripts.js"></script>
 </body>
 </html>
